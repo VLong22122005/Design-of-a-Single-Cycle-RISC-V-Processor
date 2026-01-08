@@ -193,69 +193,6 @@ module alu(
 
 endmodule
 
-// module brc(
-//     input  logic[31:0] i_rs1_data,
-//     input  logic[31:0] i_rs2_data,
-//     input  logic       i_br_un,
-//     output logic       o_br_less,
-//     output logic       o_br_equal
-// );  
-//     logic u_less, s_less ; 
-//     logic[31:0] s_brc ; 
-//     unsigned_compare cmp_brc(.a(i_rs1_data), .b(i_rs2_data), .l(u_less)) ; 
-//     equal_or_not     eql_brc(.a(i_rs1_data), .b(i_rs2_data), .eq(o_br_equal)) ;
-//     slt              slt_brc(.a(i_rs1_data), .b(i_rs2_data), .o(s_brc)) ;    // signed compare
-//     assign s_less = s_brc[0] ; 
-    
-//     assign o_br_less = (i_br_un & s_less) | (~i_br_un & u_less) ; 
-// endmodule
-
-// module unsigned_compare(
-//     input  logic[31:0] a,
-//     input  logic[31:0] b,
-//     output logic       l    // 1 if a<b , 0 if a>=b
-// );
-//     logic [32:0] s ; 
-//     logic [32:0] a_33bit ; 
-//     assign a_33bit = {1'b0, a[31:0]} ; 
-//     logic [32:0] b_33bit ; 
-//     assign b_33bit = {1'b0, b[31:0]} ;
-//     logic[32:0] bnot ; 
-//     assign bnot = ~b_33bit ;
-//     logic[33:0] c ; 
-//     logic ov ; 
-
-//     always_comb begin 
-//         c[0] = 1'b1 ; 
-//         for(integer i=0 ; i<33; i++) begin
-//         s[i] = a_33bit[i]^bnot[i]^c[i];
-//         c[i+1] = a_33bit[i]&bnot[i] | a_33bit[i]&c[i] | c[i]&bnot[i] ;
-//         end 
-//     end
-//     assign ov = c[33]^c[32] ; 
-
-//     assign l = (~ov & s[32]) | (ov & ~s[32]) ; 
-//     //assign l = (a<b) ; 
-
-// endmodule
-
-
-// module equal_or_not(
-//     input  logic[31:0] a,
-//     input  logic[31:0] b,
-//     output logic       eq    // 1 if a=b , 0 if a!=b
-// );
-//     logic [31:0] c ;  
-//     always_comb begin
-//     for(integer i = 0 ; i<32  ; i++) begin
-//         c[i] = a[i] ^ b[i] ; 
-//     end
-//     end
-
-//     assign eq = ~(|c) ; 
-
-// endmodule
-
 module decoder1to2(
     input logic en,
     input logic in,
@@ -649,25 +586,18 @@ module instruction_memory (
     output logic [31:0] o_instr       
 );
 
-    (* ramstyle = "M4K" *)logic [31:0] imem [0:2047];
+    logic [31:0] imem [0:2047];
 
     logic [10:0] pc ;
     assign pc = {i_pc[12:2]} ; 
 
-    initial begin
-        $readmemh("./../02_test/isa_4b.hex", imem);
-    end
-
-    // always_ff @(posedge i_clk) begin
-    //     o_instr <= imem[pc] ; 
+    // initial begin
+    //     $readmemh(" ", imem);  load the assembly code file into instruction memory
     // end
 
     assign o_instr = imem[pc] ; 
 
 endmodule
-
-
-
 
 module immgen(
     input logic[31:0] i_instruction,
@@ -866,7 +796,7 @@ module control_unit(
 
         endcase
     end
-   
+   // using this one is also correct
 //      always_comb begin
 //     pc_sel   = 1'b1;
 //     rd_wren  = 1'b0;
@@ -1114,6 +1044,7 @@ module brc (
 endmodule
 
 
+//use this for misalignedment handling for I/O port
 // module io_memory(
 //     input logic i_clk ,
 //     input logic[31:0] i_data,
